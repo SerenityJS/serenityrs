@@ -1,0 +1,11 @@
+[package]
+name = "serenityrs"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+colored = "2.1.0"
+napi = { version = "2.12.2", default-features = true, features = ["napi8"] }
+napi-derive = "2.16.11"
