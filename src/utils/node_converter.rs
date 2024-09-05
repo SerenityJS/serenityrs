@@ -56,6 +56,20 @@ pub fn get_node_bigint(object: &JsObject, name: &str) -> napi::Result<napi::JsBi
   return Ok(bigint);
 }
 
+pub fn get_node_number(object: &JsObject, name: &str) -> napi::Result<napi::JsNumber> {
+  // Get the number from the object
+  let number = match object.get_named_property::<napi::JsNumber>(name) {
+    Ok(n) => n,
+    Err(e) => return Err(napi::Error::new(
+      napi::Status::GenericFailure,
+      e.to_string()
+    ))
+  };
+
+  // Return the number
+  return Ok(number);
+}
+
 pub fn create_node_func(env: &napi::Env, name: &str, func: napi::Callback) -> napi::Result<napi::JsFunction> {
   // Create the function from the env
   let function = match env.create_function(name, func) {
