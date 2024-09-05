@@ -50,37 +50,7 @@ impl FromNapiValue for World {
       ))
     };
 
-    // Get the identifier object
-    let identifier_object = get_node_string(&object, "identifier");
-    let identifier = match identifier_object {
-      Ok(identifier) => identifier.into_utf8().unwrap().into_owned().unwrap(),
-      Err(e) => return Err(napi::Error::new(
-        napi::Status::GenericFailure,
-        e.to_string()
-      ))
-    };
-
-    // Get the current_tick object
-    let current_tick_object = get_node_bigint(&object, "currentTick");
-    let current_tick = match current_tick_object {
-      Ok(current_tick) => current_tick.get_u64().unwrap().0,
-      Err(e) => return Err(napi::Error::new(
-        napi::Status::GenericFailure,
-        e.to_string()
-      ))
-    };
-
-
-    // Create the logger instance
-    let logger_object = get_node_object(&object, "logger");
-    let logger = match logger_object {
-      Ok(logger) => Logger::new(env.into(), logger),
-      Err(e) => return Err(napi::Error::new(
-        napi::Status::GenericFailure,
-        e.to_string()
-      ))
-    };
-
-    Ok(World { env: env.into(), object, identifier, current_tick, logger })
+    // Return the World instance
+    Ok(World::new(env.into(), object))
   }
 }
