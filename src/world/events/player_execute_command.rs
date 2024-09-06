@@ -1,20 +1,20 @@
 use napi::bindgen_prelude::FromNapiValue;
-use napi::{JsObject, NapiValue};
+use napi::NapiValue;
 
 use crate::utils::node_converter::*;
-use crate::world::world::world::World;
 use crate::world::player::player::Player;
+use crate::world::world::world::World;
 
-pub struct PlayerChatSignal {
-  pub object: JsObject,
+pub struct PlayerExecuteCommandSignal {
+  pub object: napi::JsObject,
   pub env: napi::Env,
   pub world: World,
   pub player: Player,
-  pub message: String
+  pub command: String
 }
 
-impl PlayerChatSignal {
-  pub fn new(env: napi::Env, object: JsObject) -> napi::Result<Self> {
+impl PlayerExecuteCommandSignal {
+  pub fn new(env: napi::Env, object: napi::JsObject) -> napi::Result<Self> {
     // Create the world instance
     let world_object = get_node_object(&object, "world");
     let world = match world_object {
@@ -35,21 +35,21 @@ impl PlayerChatSignal {
       ))
     };
 
-    // Get the message object
-    let message_object = get_node_string(&object, "message");
-    let message = match message_object {
-      Ok(message) => message.into_utf8().unwrap().into_owned().unwrap(),
+    // Get the command object
+    let command_object = get_node_string(&object, "command");
+    let command = match command_object {
+      Ok(command) => command.into_utf8().unwrap().into_owned().unwrap(),
       Err(e) => return Err(napi::Error::new(
         napi::Status::GenericFailure,
         e.to_string()
       ))
     };
 
-    Ok(PlayerChatSignal { env, object, world, player, message })
+    Ok(PlayerExecuteCommandSignal { env, object, world, player, command })
   }
 }
 
-impl FromNapiValue for PlayerChatSignal {
+impl FromNapiValue for PlayerExecuteCommandSignal {
   unsafe fn from_napi_value(env: napi::sys::napi_env, value: napi::sys::napi_value) -> napi::Result<Self> {
     // Create the JsObject from the napi_value
     let object = match napi::JsObject::from_raw(env.clone(), value.clone()) {
@@ -60,7 +60,7 @@ impl FromNapiValue for PlayerChatSignal {
       ))
     };
 
-    // Return the PlayerChatSignal instance
-    Ok(PlayerChatSignal::new(env.into(), object)?)
+    // Return the PlayerExecuteCommandSignal instance
+    Ok(PlayerExecuteCommandSignal::new(env.into(), object)?)
   }
 }

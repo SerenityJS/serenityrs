@@ -1,15 +1,18 @@
-use napi::{bindgen_prelude::FromNapiValue, NapiValue};
+use napi::bindgen_prelude::FromNapiValue;
+use napi::NapiValue;
 
 use crate::utils::node_converter::*;
 use crate::world::world::world::World;
+use crate::world::player::player::Player;
 
-pub struct WorldTickSignal {
+pub struct PlayerJoinSignal {
   pub object: napi::JsObject,
   pub env: napi::Env,
   pub world: World,
+  pub player: Player
 }
 
-impl WorldTickSignal {
+impl PlayerJoinSignal {
   pub fn new(env: napi::Env, object: napi::JsObject) -> napi::Result<Self> {
     // Create the world instance
     let world_object = get_node_object(&object, "world");
@@ -21,11 +24,21 @@ impl WorldTickSignal {
       ))
     };
 
-    Ok(WorldTickSignal { env, object, world })
+    // Create the player instance
+    let player_object = get_node_object(&object, "player");
+    let player = match player_object {
+      Ok(player) => Player::new(env.clone(), player),
+      Err(e) => return Err(napi::Error::new(
+        napi::Status::GenericFailure,
+        e.to_string()
+      ))
+    };
+
+    Ok(PlayerJoinSignal { env, object, world, player })
   }
 }
 
-impl FromNapiValue for WorldTickSignal {
+impl FromNapiValue for PlayerJoinSignal {
   unsafe fn from_napi_value(env: napi::sys::napi_env, value: napi::sys::napi_value) -> napi::Result<Self> {
     // Create the JsObject from the napi_value
     let object = match napi::JsObject::from_raw(env.clone(), value.clone()) {
@@ -36,7 +49,7 @@ impl FromNapiValue for WorldTickSignal {
       ))
     };
 
-    // Return the WorldTickSignal instance
-    Ok(WorldTickSignal::new(env.into(), object)?)
+    // Return the PlayerJoinSignal instance
+    Ok(PlayerJoinSignal::new(env.into(), object)?)
   }
 }

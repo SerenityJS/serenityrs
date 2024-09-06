@@ -187,6 +187,26 @@ impl Player {
   }
 
   /**
+   * Gets a component from the player.
+  */
+  pub fn get_component(&self, component: &str) -> napi::JsObject {
+    // Get the get_component function
+    let get_component = get_node_func(&self.object, "getComponent").unwrap();
+
+    // Convert the component to a JsString
+    let component = convert_to_js_string(&self.env, component).unwrap();
+
+    // Call the get_component function
+    let result = get_component.call::<napi::JsString>(Some(&self.object), &[component]).unwrap();
+
+    // Coerce the result to an object
+    let result_object = result.coerce_to_object().unwrap();
+
+    // Return the PlayerComponent instance
+    return result_object
+  }
+
+  /**
    * Removes a component from the player.
   */
   pub fn remove_component(&self, component: &str) {
